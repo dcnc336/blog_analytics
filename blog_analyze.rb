@@ -130,6 +130,7 @@ for blog in blog_posts do
         'updated_at' => blog['updated_at'],
         'age' => (dates-temp_date).to_i,
         'total' => 0,
+        'before_publishing' => 0,
         'month_1' => 0, 
         'month_2' => 0,
         'month_3' => 0, 
@@ -147,11 +148,12 @@ for blog in blog_posts do
     performance_xlsx_datas.each_with_index do |xlsx_data, idx|
         for xlsx_one in xlsx_data do
             if (base_name.casecmp  xlsx_one['url'].match(/\/([^\/]+)\/?$/)[1]) == 0
-                print "#{base_name}\n"
                 income = xlsx_one["income"]
                 temp_datas['total'] += income
                 temp_month = performance_xlsx_dates[idx] - temp_temp_month + 1
-                if temp_month == 1
+                if temp_month < 1
+                    temp_datas['before_publishing'] += income
+                elsif temp_month == 1
                     temp_datas['month_1'] += income
                 elsif temp_month == 2
                     temp_datas['month_2'] += income
@@ -196,7 +198,8 @@ CSV.open("./blog_analytics/output/output.csv", "w") do |csv|
         "created_at", 
         "updated_at", 
         "Age (days)", 
-        "Total Revenue Earned", 
+        "Total Revenue Earned",
+        "Before Publishing",
         "Month 1 Revenue", 
         "Month 2", 
         "Month 3", 
@@ -224,6 +227,7 @@ CSV.open("./blog_analytics/output/output.csv", "w") do |csv|
             data['updated_at'],
             data['age'],
             data['total'],
+            data['before_publishing'],
             data['month_1'],
             data['month_2'],
             data['month_3'],
